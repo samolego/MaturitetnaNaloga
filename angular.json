@@ -28,9 +28,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.sass"
+              "node_modules/mdb-ui-kit/css/mdb.min.css",
+              "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/mdb-ui-kit/js/mdb.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -123,6 +126,12 @@
           }
         }
       }
-    }},
-  "defaultProject": "QuizApp"
+    }
+  },
+  "defaultProject": "QuizApp",
+  "schematics": {
+    "@schematics/angular:component": {
+      "styleext": "scss"
+    }
+  }
 }

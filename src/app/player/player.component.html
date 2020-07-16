@@ -1,0 +1,12 @@
+<section class="text-center">
+    <div *ngIf="playername == null" class="form-outline">
+        <input type="text" id="nameInput" class="form-control" style="border: 2px" autocomplete="off">
+        <label class="form-label" for="nameInput">Your name here</label>
+        <button type="button" class="btn btn-dark" (click)="login()">Play</button>
+    </div>
+    <div *ngIf="playername != null">
+        <h3>
+            Hello, {{ this.playername }}!
+        </h3>
+    </div>
+</section>
