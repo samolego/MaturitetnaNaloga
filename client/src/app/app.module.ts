@@ -9,6 +9,9 @@ import { AuthComponent } from './admin/auth/auth.component';
 import { AdminComponent } from './admin/admin.component';
 import { PlayerComponent } from './player/player.component';
 import { SettingsComponent } from './admin/settings/settings.component';
+import { QuizComponent } from './admin/quiz/quiz.component';
+import { StatsComponent } from './admin/stats/stats.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -17,14 +20,17 @@ import { SettingsComponent } from './admin/settings/settings.component';
     AuthComponent,
     AdminComponent,
     PlayerComponent,
-    SettingsComponent
+    SettingsComponent,
+    QuizComponent,
+    StatsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -31,7 +31,7 @@ export class AuthComponent implements OnInit {
       return;
     }
     this.authService.signIn(this.authForm.value);
-    this.router.navigateByUrl('/admin');
+    this.router.navigateByUrl('/quiz');
   }
 
 
