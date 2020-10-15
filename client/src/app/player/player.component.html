@@ -50,10 +50,10 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-6" *ngIf="this.settings.enableAnswers">
                 <textarea class="form-control" id="answerField" rows="4" autocomplete="off" placeholder="Answer"></textarea>
             </div>
-            <div class="col-sm-6">
+            <div class="col">
                 <button type="button" class="btn btn-warning mt-2" (click)="postAnswer()" style="max-width: 400px; width: 80%; max-height: 400px; height: 100px">
                     I know answer!
                 </button>
@@ -61,7 +61,7 @@
 
         </div>
         <div class="row p-4" *ngIf="playerScores != null">
-            <b>Logged players:</b>
+            <b>Players who answered:</b>
             <span *ngFor="let player of playerScores">
                 {{ player.name }}; {{ player.time }}s
             </span>

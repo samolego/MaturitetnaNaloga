@@ -12,6 +12,7 @@ export class PlayerComponent implements OnInit {
   error: boolean;
   showAnswerMessage;
   playerScores = [{"name": "Samo", "time": 5}, {"name": "Gabrijel", "time": 10}];
+  settings = {"enableAnswers": true, "time": 5};
 
   constructor(private http: HttpClient) {
     this.now = new Date();
@@ -56,21 +57,20 @@ export class PlayerComponent implements OnInit {
 
   async postAnswer() {
     this.showAnswerMessage = true;
-    setTimeout(() => this.showAnswerMessage = false, 500);
-    const answer = (<HTMLInputElement> document.getElementById("answerField")).value;
-    const body = {
-      answer: answer,
-    }
-    this.http.post<any>("http://localhost:3000/api/player/answer", body).subscribe(data => {      
+    setTimeout(() => this.showAnswerMessage = false, 600);
+    const answer = (<HTMLInputElement> document.getElementById("answerField"));
+    this.http.post<any>("http://localhost:3000/api/player/answer", { answer: answer.value }).subscribe(data => {      
       if(data.status === "fail") {
         this.error = true;
         return;
       }
-      this.player.answer = answer;
+      console.log(data);
       this.error = false;
     },
     error => {
       console.log(error);
     });
+
+    answer.value = null;
   }
 }
