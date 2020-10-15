@@ -39,6 +39,27 @@ app.post('/api/admin/login', (req, res) => {
 	});
 });
 
+// Modifying player
+app.post('/api/admin/playerModify', (req, res) => {
+	mongoose.connect(url, { useMongoClient: true }, (err) => {
+		if(err)
+			console.log(err);
+		Player.updateOne({
+			id : req.ip.toString()
+		}, {$set: {
+			points: this.points + req.body.pointsPlus
+		}},(err, player) => {
+			if(err)
+				console.log(err);
+			return res.status(200).json({
+				status: 'success'
+			});
+		});
+	});
+});
+
+
+// OPEN TO ALL CLIENTS
 
 // Player creation
 app.post('/api/player/create', (req, res) => {
@@ -72,27 +93,6 @@ app.post('/api/player/create', (req, res) => {
 	});
 });
 
-// Modifying player
-app.post('/api/player/modify', (req, res) => {
-	mongoose.connect(url, { useMongoClient: true }, (err) => {
-		if(err)
-			console.log(err);
-		Player.updateOne({
-			id : req.ip.toString()
-		}, {$set: {
-			points: this.points + req.body.pointsPlus
-		}},(err, player) => {
-			if(err)
-				console.log(err);
-			return res.status(200).json({
-				status: 'success'
-			});
-		});
-	});
-});
-
-
-// Different cors header
 app.post('/api/player/answer', (req, res) => {
 	mongoose.connect(url, { useMongoClient: true }, (err) => {
 		if(err)
@@ -105,7 +105,10 @@ app.post('/api/player/answer', (req, res) => {
 			if(err)
 				console.log(err);
 			return res.status(200).json({
-				status: 'success'
+				status: 'success',
+				result: Player.find({ $not: {
+					answer: ""
+				}}).toString()
 			});
 		});
 	});
