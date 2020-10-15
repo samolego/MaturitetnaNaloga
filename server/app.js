@@ -77,7 +77,7 @@ app.post('/api/player/modify', (req, res) => {
 	mongoose.connect(url, { useMongoClient: true }, (err) => {
 		if(err)
 			console.log(err);
-		Player.update({
+		Player.updateOne({
 			id : req.ip.toString()
 		}, {$set: {
 			points: this.points + req.body.pointsPlus
@@ -97,7 +97,7 @@ app.post('/api/player/answer', (req, res) => {
 	mongoose.connect(url, { useMongoClient: true }, (err) => {
 		if(err)
 			console.log(err);
-		Player.update({
+		Player.updateOne({
 			id : req.ip.toString()
 		}, {$set: {
 			answer: req.body.answer

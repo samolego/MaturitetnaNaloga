@@ -10,6 +10,8 @@ export class PlayerComponent implements OnInit {
   player;
   now;
   error: boolean;
+  showAnswerMessage;
+  playerScores = [{"name": "Samo", "time": 5}, {"name": "Gabrijel", "time": 10}];
 
   constructor(private http: HttpClient) {
     this.now = new Date();
@@ -53,6 +55,8 @@ export class PlayerComponent implements OnInit {
   }
 
   async postAnswer() {
+    this.showAnswerMessage = true;
+    setTimeout(() => this.showAnswerMessage = false, 500);
     const answer = (<HTMLInputElement> document.getElementById("answerField")).value;
     const body = {
       answer: answer,
@@ -62,10 +66,7 @@ export class PlayerComponent implements OnInit {
         this.error = true;
         return;
       }
-      this.player = {
-        name: answer,
-        expiry: this.now.getTime() + 1,
-      }
+      this.player.answer = answer;
       this.error = false;
     },
     error => {
