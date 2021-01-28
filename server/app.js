@@ -4,19 +4,32 @@ const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 const url = 'mongodb://localhost/quizApp';
+const http = require('http').Server(app);
+const io = require("socket.io")(http, {
+	cors: {
+	  origin: "http://localhost:4200",
+	  methods: ["GET", "POST"],
+	  allowedHeaders: ["main-header"],
+	  credentials: true
+	}
+});
 
 const Admin = require('./model/admin');
 const Player = require('./model/player');
+const { response } = require('express');
+const player = require('./model/player');
 
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : false}));
 
+const mongooseOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 
-// Admin login
+/*
+	// Admin login
 app.post('/api/admin/login', (req, res) => {
-	mongoose.connect(url, { useMongoClient: true }, (err) => {
+	mongoose.connect(url, mongooseOptions, (err) => {
 		if(err)
 			console.log(err);
 		Admin.find({
@@ -41,7 +54,7 @@ app.post('/api/admin/login', (req, res) => {
 
 // Modifying player
 app.post('/api/admin/playerModify', (req, res) => {
-	mongoose.connect(url, { useMongoClient: true }, (err) => {
+	mongoose.connect(url, mongooseOptions, (err) => {
 		if(err)
 			console.log(err);
 		Player.updateOne({
@@ -63,7 +76,7 @@ app.post('/api/admin/playerModify', (req, res) => {
 
 // Player creation
 app.post('/api/player/create', (req, res) => {
-	mongoose.connect(url, { useMongoClient: true }, (err) => {
+	mongoose.connect(url, mongooseOptions, (err) => {
 		if(err)
 			console.log(err);
 		Player.find({
@@ -78,7 +91,8 @@ app.post('/api/player/create', (req, res) => {
 			const player = new Player({
 				playername: req.body.playername,
 				points: 0,
-				answer: null,
+				answerValue: null,
+				answerDate: null,
 				isMale: req.body.isMale,
 				id: req.ip.toString()
 			});
@@ -93,25 +107,98 @@ app.post('/api/player/create', (req, res) => {
 	});
 });
 
+// Answer
 app.post('/api/player/answer', (req, res) => {
-	mongoose.connect(url, { useMongoClient: true }, (err) => {
+	mongoose.connect(url, mongooseOptions, (err) => {
 		if(err)
 			console.log(err);
 		Player.updateOne({
-			id : req.ip.toString()
+			id : req.ip.toString(),
+			answerValue: null
 		}, {$set: {
-			answer: req.body.answer
+			answerValue: req.body.answer,
+			answerDate: new Date()
 		}},(err, player) => {
 			if(err)
 				console.log(err);
+			
+			// socket
+			var answers = [];
+			/*Player.find(
+				{  $nor: 
+					[{
+						answerValue: null
+					}]
+				}, (err, author) => {
+					if(err)
+						console.log(err);
+
+					answers.push(author.answerValue);
+					console.log(answers);
+				}
+			);*/
+/*
 			return res.status(200).json({
-				status: 'success',
-				result: Player.find({ $not: {
-					answer: ""
-				}}).toString()
+				status: player.nModified > 0 ? 'success' : 'fail'
 			});
 		});
 	});
 });
 
-app.listen(3000, () => console.log('API server running on port 3000!'))
+app.listen(3000, () => console.log('API server running on port 3000!'));*/
+
+// NEW
+
+mongoose.connect(url, mongooseOptions, (err) => {
+	if(err)
+		console.log(err);
+
+	io.on('connection', (socket) => {
+		const address = socket.handshake.address;
+		console.log("A user connected");
+	
+		// writeAnswer
+		socket.on('writeAnswerC2S', (data) => {
+			Player.updateOne({
+				id : address.address,
+				answerValue: null
+			}, {$set: {
+				answerValue: data.answer,
+				answerDate: new Date()
+			}},(err, player) => {
+				if(err)
+					console.log(err);
+
+				socket.emit("result", player.nModified > 0 ? 'success' : 'fail');
+			});
+		});
+
+		socket.on('refreshPlayersC2S', () => {
+			Player.find({}, (err, players) => {
+				if(err)
+					console.log(err);
+				socket.emit("refreshPlayersS2C", players);
+			});
+		});
+
+		socket.on('pointsC2S', (data) => {
+			Player.updateOne({
+				id : data.id
+			}, {$inc: {
+				points: data.points
+			}},(err) => {
+				if(err)
+					console.log(err);
+			});
+		});
+	});
+});
+
+
+http.listen(4444);
+
+async function sendPlayerData() {
+	if(io.status) {
+		io.emit();
+	}
+}
