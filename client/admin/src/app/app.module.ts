@@ -10,6 +10,8 @@ import { SettingsComponent } from './admin/settings/settings.component';
 import { QuizComponent } from './admin/quiz/quiz.component';
 import { StatsComponent } from './admin/stats/stats.component';
 import { HttpClientModule } from '@angular/common/http';
+import { PlayerComponent } from './player/player.component';
+import { AuthComponent } from './admin/auth/auth.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { HttpClientModule } from '@angular/common/http';
     AdminComponent,
     SettingsComponent,
     QuizComponent,
-    StatsComponent
+    StatsComponent,
+    PlayerComponent,
+    AuthComponent
   ],
   imports: [
     BrowserModule,

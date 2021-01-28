@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark elegant-color-dark">
     <div class="container-fluid">
         <a class="navbar-brand" routerLink="quiz/main">Brand</a>
-        <button
+        <button *ngIf="isAuthenticated()"
         class="navbar-toggler"
         type="button"
         data-toggle="collapse"
@@ -13,7 +13,7 @@
         <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent" *ngIf="isAuthenticated()">
             <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link" routerLink="quiz/main">Quiz</a>

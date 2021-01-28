@@ -25,6 +25,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : false}));
 
 const mongooseOptions = { useNewUrlParser: true, useUnifiedTopology: true };
+var settings = {
+	enableAnswers: true
+}
 
 /*
 	// Admin login
@@ -155,24 +158,57 @@ mongoose.connect(url, mongooseOptions, (err) => {
 
 	io.on('connection', (socket) => {
 		const address = socket.handshake.address;
+		console.log(address);
 		console.log("A user connected");
 	
-		// writeAnswer
-		socket.on('writeAnswerC2S', (data) => {
+		// Player
+		socket.emit('clientSettingsS2C', settings);
+
+		socket.on('createPlayerC2S', (data) => {
+			Player.find({
+				id : address.toString()
+			}, (err, el) => {
+				if(err)
+					console.log(err);
+				if(el.length === 1)
+					socket.emit("createPlayerS2C", 'fail');
+				
+	
+				const player = new Player({
+					playername: data.playername,
+					points: 0,
+					answerValue: null,
+					answerDate: null,
+					isMale: data.isMale,
+					id: address.toString()
+				});
+				player.save((err, _res) => {
+					if(err)
+						console.log(err);
+					socket.emit("createPlayerS2C", 'success');
+				});
+			});
+		});
+
+		socket.on('writeAnswerC2S', (answer) => {
 			Player.updateOne({
-				id : address.address,
+				id : address.toString(),
 				answerValue: null
 			}, {$set: {
-				answerValue: data.answer,
+				answerValue: answer,
 				answerDate: new Date()
 			}},(err, player) => {
 				if(err)
 					console.log(err);
 
-				socket.emit("result", player.nModified > 0 ? 'success' : 'fail');
+				socket.emit("writeAnswerS2C", player.nModified > 0 ? 'success' : 'fail');
 			});
 		});
 
+
+		
+
+		// Admin
 		socket.on('refreshPlayersC2S', () => {
 			Player.find({}, (err, players) => {
 				if(err)
