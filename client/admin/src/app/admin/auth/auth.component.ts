@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from './auth.service';
-import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-auth',
@@ -12,7 +12,7 @@ export class AuthComponent implements OnInit {
   authForm: FormGroup;
   isSubmitted = false;
 
-  constructor(private authService: AuthService, private router: Router, private formBuilder: FormBuilder) { }
+  constructor(private authService: AuthService, private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
     this.authForm  =  this.formBuilder.group({
@@ -25,12 +25,11 @@ export class AuthComponent implements OnInit {
     return this.authForm.controls;
   }
 
-  signIn(){
+  signIn() {
     this.isSubmitted = true;
     if(this.authForm.invalid){
       return;
     }
     this.authService.signIn(this.authForm.value);
-    this.router.navigateByUrl('/quiz');
   }
 }
