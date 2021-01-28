@@ -191,14 +191,17 @@ mongoose.connect(url, mongooseOptions, (err) => {
 					console.log(err);
 			});
 		});
+
+		socket.on('clearAnswersC2S', () => {
+			Player.updateMany({}, {$set: {
+				answerValue: null
+			}},(err) => {
+				if(err)
+					console.log(err);
+			});
+		});
 	});
 });
 
 
 http.listen(4444);
-
-async function sendPlayerData() {
-	if(io.status) {
-		io.emit();
-	}
-}

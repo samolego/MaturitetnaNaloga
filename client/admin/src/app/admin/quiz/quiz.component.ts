@@ -51,4 +51,18 @@ export class QuizComponent implements OnInit {
       return b.points - a.points;
     });
   }
+
+  async clearAnswers() {
+    if(this.socket.connected) {
+      console.log(this.players);
+
+      for(let i = 0; i < this.players.length; ++i) {
+        this.players[i].answerValue = null;
+      }
+      this.socket.emit('clearAnswersC2S');
+    }
+    else {
+      alert("Data couldn't be sent!")
+    }
+  }
 }
