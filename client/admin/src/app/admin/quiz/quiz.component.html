@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="col-lg-2 col-md-3 col-sm-4 border-left text-center">
-            Options
+            <b>Options</b>
             <div class="row p-2">
                 <div class="form-check form-switch">
                     <label class="form-check-label" for="answersSwitch">Answers</label>
@@ -30,6 +30,12 @@
             <div class="row p-2">
                 <button class="btn btn-warning" (click)="sortByScore()">Sort by score</button>
                 <button class="btn btn-danger mt-2" (click)="clearAnswers()">Clear answers</button>
+            </div>
+            <div class="row p-2 text-left" *ngIf="wisePlayers != null && wisePlayers[0] != null">
+                <b>Players who answered:</b>
+                <span *ngFor="let player of wisePlayers; let i = index">
+                    {{ i + 1 }}. {{ player.playername }} ({{ getDate(player.answerDate) }})
+                </span>
             </div>
         </div>
     </div>

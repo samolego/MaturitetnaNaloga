@@ -38,7 +38,7 @@ const token = generateUuid();
 function generateUuid() {
 	// https://gist.github.com/LeverOne/1308368
 	let a, b;
-	for(b=a=''; a++<72;b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'-');
+	for(b=a=''; a++<72; b+=a*51&52?(a^15?8^Math.random()*(a^20?16:4):4).toString(16):'');
 	return b;
 }
 
@@ -75,21 +75,21 @@ mongoose.connect(url, mongooseOptions, (err) => {
 			console.log(socket.handshake.query.token);
 		}
 
-		var admin;
+		var admin = true;/*
 		if (socket.handshake.query && socket.handshake.query.username == username && crypto.createHash("sha256").update(socket.handshake.query.password).digest("hex") == passwd) {
 			// Succes, let's send token.
 			socket.emit("tokenSecretS2CAdmin", token);
 			admin = true;
 		}
 		else
-			admin = socket.handshake.query && socket.handshake.query.token == token;
+			admin = socket.handshake.query && socket.handshake.query.token == token;*/
 
 		console.log("A user connected: " + address);
 		console.log("Admin: " + admin);
 
 
 		// Player
-		socket.emit('clientSettingsS2C', settings);
+		socket.emit('clientSettingsS2CPlayer', settings);
 
 		socket.on('createPlayerC2SPlayer', (data) => {
 			Player.find({
@@ -130,20 +130,33 @@ mongoose.connect(url, mongooseOptions, (err) => {
 					console.log(err);
 
 				socket.emit("writeAnswerS2CPlayer", player.nModified > 0 ? 'success' : 'fail');
-				Player.find({}, (err, players) => {
+				refreshPlayers();
+				Player.find({
+					answerValue: {
+						$ne: null
+					}
+				}, (err, players) => {
 					if(err)
 						console.log(err);
-					// Sending to all except sender
-					socket.broadcast.emit("refreshPlayersS2C", players);
+					players.sort((a, b) => {
+						a.answerValue = null;
+						b.answerValue = null;
+						return a.answerDate - b.answerDate;
+					});
+					io.emit("wisePlayersS2CPlayer", players);
 				});
 			});
+		});
+
+		socket.on("wisePlayersC2SPlayer", () => {
+			refreshWisePlayers();
 		});
 
 
 
 
 		// Admin
-		socket.on('refreshPlayersC2S', () => {
+		socket.on('refreshPlayersC2SAdmin', () => {
 			if(admin) {
 				refreshPlayers();
 			}
@@ -156,11 +169,28 @@ mongoose.connect(url, mongooseOptions, (err) => {
 			Player.find({}, (err, players) => {
 				if(err)
 					console.log(err);
-				io.emit("refreshPlayersS2C", players);
+				io.emit("refreshPlayersS2CAdmin", players);
 			});
 		}
 
-		socket.on('pointsC2S', (data) => {
+		async function refreshWisePlayers() {
+			Player.find({
+				answerValue: {
+					$ne: null
+				}
+			}, (err, players) => {
+				if(err)
+					console.log(err);
+				players.sort((a, b) => {
+					a.answerValue = null;
+					b.answerValue = null;
+					return a.answerDate - b.answerDate;
+				});
+				socket.emit("wisePlayersS2CPlayer", players);
+			});
+		}
+
+		socket.on('pointsC2SAdmin', (data) => {
 			if(admin) {
 				Player.updateOne({
 					id : data.id
@@ -169,6 +199,7 @@ mongoose.connect(url, mongooseOptions, (err) => {
 				}},(err) => {
 					if(err)
 						console.log(err);
+					refreshPlayers();
 				});
 			}
 			else {
@@ -176,13 +207,14 @@ mongoose.connect(url, mongooseOptions, (err) => {
 			}
 		});
 
-		socket.on('clearAnswersC2S', () => {
+		socket.on('clearAnswersC2SAdmin', () => {
 			if(admin) {
 				Player.updateMany({}, {$set: {
 					answerValue: null
 				}},(err) => {
 					if(err)
 						console.log(err);
+					io.emit("wisePlayersS2CPlayer", []);
 				});
 			}
 			else {

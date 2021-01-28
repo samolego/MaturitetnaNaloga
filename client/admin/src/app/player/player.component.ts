@@ -12,7 +12,7 @@ export class PlayerComponent implements OnInit {
   socket;
   player;
   now;
-  playerScores;
+  wisePlayers;
   settings;
   error: boolean;
   showAnswerMessage: boolean;
@@ -39,13 +39,14 @@ export class PlayerComponent implements OnInit {
       }
     }
 
-    this.socket.on('playerAnswersS2C', (data) => {
-      this.playerScores = data;
+    this.socket.on('wisePlayersS2CPlayer', (data) => {
+      console.log("wisePlayersS2CPlayer");
+      this.wisePlayers = data;
     });
 
 
     
-    this.socket.on('clientSettingsS2C', (data) => {
+    this.socket.on('clientSettingsS2CPlayer', (data) => {
       this.settings = data;
     });
 
@@ -89,22 +90,20 @@ export class PlayerComponent implements OnInit {
 
   async postAnswer() {
     const answer = (<HTMLInputElement> document.getElementById("answerField"));
-
-        /*this.http.post<any>("http://localhost:3000/api/player/answer", { answer: answer.value }).subscribe(data => {      
-      console.log(data);
-      if(data.status === "fail") {
-        this.answerFailed = true;
-        setTimeout(() => this.answerFailed = false, 600);
-        return;
-      }
-      this.error = false;
-      this.showAnswerMessage = true;
-      setTimeout(() => this.showAnswerMessage = false, 600);
-    },
-    error => {
-      console.log(error);
-    });*/
     this.socket.emit('writeAnswerC2SPlayer', answer.value);
     answer.value = null;
+  }
+
+  getDate(stringDate) {
+    let otherDate = new Date(stringDate);
+    if(this.wisePlayers[0].answerDate == null) {
+      return null;
+    }
+    let timeDelta = otherDate.getTime() - new Date(this.wisePlayers[0].answerDate).getTime();
+    if(timeDelta == 0) {
+      return "first";
+    }
+
+    return timeDelta / 1000 + "s";
   }
 }

@@ -65,10 +65,10 @@
             </div>
 
         </div>
-        <div class="row p-4" *ngIf="playerScores != null">
+        <div class="row p-4" *ngIf="wisePlayers != null">
             <b>Players who answered:</b>
-            <span *ngFor="let player of playerScores">
-                {{ player.name }}; {{ player.time }}s
+            <span *ngFor="let player of wisePlayers">
+                {{ player.playername }}; {{ getDate(player.answerDate) }}
             </span>
         </div>
     </div>

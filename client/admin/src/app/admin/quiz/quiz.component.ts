@@ -12,6 +12,7 @@ const SOCKET_ENDPOINT = 'localhost:4444';
 export class QuizComponent implements OnInit {
   showAnswers;
   players;
+  wisePlayers; // Players who have answered :)
   socket: any;
 
   constructor(private router: Router) {
@@ -23,13 +24,13 @@ export class QuizComponent implements OnInit {
 
     // Socket connection
     this.socket.on('connect', () => {
-      this.socket.emit('refreshPlayersC2S');
+      this.socket.emit('refreshPlayersC2SAdmin');
+      this.socket.emit('wisePlayersC2SPlayer');
     });
 
 
     // Socket events
-    this.socket.on('refreshPlayersS2C', data => {
-      console.log("Refrshing players.");
+    this.socket.on('refreshPlayersS2CAdmin', data => {
       this.players = data;
     });
 
@@ -37,6 +38,11 @@ export class QuizComponent implements OnInit {
     this.socket.on('invalidTokenS2CAdmin', () => {
       localStorage.setItem('ACCESS_TOKEN', null);
       this.router.navigateByUrl('/login');
+    });
+
+    this.socket.on('wisePlayersS2CPlayer', (data) => {
+      console.log("wisePlayersS2CPlayer");
+      this.wisePlayers = data;
     });
   }
 
@@ -48,7 +54,7 @@ export class QuizComponent implements OnInit {
     this.players[index].points += points;
 
     if(this.socket.connected) {
-      this.socket.emit('pointsC2S', {"id": this.players[index].id, "points": points});
+      this.socket.emit('pointsC2SAdmin', {"id": this.players[index].id, "points": points});
     }
     else {
       alert("Data couldn't be sent!")
@@ -64,15 +70,32 @@ export class QuizComponent implements OnInit {
 
   async clearAnswers() {
     if(this.socket.connected) {
+      this.showAnswers = false;
+      (<HTMLInputElement> document.getElementById("answersSwitch")).checked = false;
       console.log(this.players);
 
       for(let i = 0; i < this.players.length; ++i) {
         this.players[i].answerValue = null;
       }
-      this.socket.emit('clearAnswersC2S');
+      this.socket.emit('clearAnswersC2SAdmin');
     }
     else {
       alert("Data couldn't be sent!")
     }
+  }
+
+
+
+  getDate(stringDate) {
+    let otherDate = new Date(stringDate);
+    if(this.wisePlayers[0].answerDate == null) {
+      return null;
+    }
+    let timeDelta = otherDate.getTime() - new Date(this.wisePlayers[0].answerDate).getTime();
+    if(timeDelta == 0) {
+      return "first";
+    }
+
+    return timeDelta / 1000 + "s";
   }
 }
