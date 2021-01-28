@@ -164,14 +164,14 @@ mongoose.connect(url, mongooseOptions, (err) => {
 		// Player
 		socket.emit('clientSettingsS2C', settings);
 
-		socket.on('createPlayerC2S', (data) => {
+		socket.on('createPlayerC2SPlayer', (data) => {
 			Player.find({
 				id : address.toString()
 			}, (err, el) => {
 				if(err)
 					console.log(err);
 				if(el.length === 1)
-					socket.emit("createPlayerS2C", 'fail');
+					socket.emit("createPlayerS2CPlayer", 'fail');
 				
 	
 				const player = new Player({
@@ -185,12 +185,13 @@ mongoose.connect(url, mongooseOptions, (err) => {
 				player.save((err, _res) => {
 					if(err)
 						console.log(err);
-					socket.emit("createPlayerS2C", 'success');
+					socket.emit("createPlayerS2CPlayer", 'success');
+					refreshPlayers();
 				});
 			});
 		});
 
-		socket.on('writeAnswerC2S', (answer) => {
+		socket.on('writeAnswerC2SPlayer', (answer) => {
 			Player.updateOne({
 				id : address.toString(),
 				answerValue: null
@@ -201,21 +202,32 @@ mongoose.connect(url, mongooseOptions, (err) => {
 				if(err)
 					console.log(err);
 
-				socket.emit("writeAnswerS2C", player.nModified > 0 ? 'success' : 'fail');
+				socket.emit("writeAnswerS2CPlayer", player.nModified > 0 ? 'success' : 'fail');
+				Player.find({}, (err, players) => {
+					if(err)
+						console.log(err);
+					// Sending to all except sender
+					socket.broadcast.emit("refreshPlayersS2C", players);
+				});
 			});
 		});
 
 
-		
+
 
 		// Admin
 		socket.on('refreshPlayersC2S', () => {
+			refreshPlayers();
+		});
+
+		async function refreshPlayers() {
+			console.log("Refreshing players.");
 			Player.find({}, (err, players) => {
 				if(err)
 					console.log(err);
-				socket.emit("refreshPlayersS2C", players);
+				io.emit("refreshPlayersS2C", players);
 			});
-		});
+		}
 
 		socket.on('pointsC2S', (data) => {
 			Player.updateOne({

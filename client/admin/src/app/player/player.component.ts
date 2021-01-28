@@ -49,7 +49,7 @@ export class PlayerComponent implements OnInit {
       this.settings = data;
     });
 
-    this.socket.on('createPlayerS2C', (status) => {
+    this.socket.on('createPlayerS2CPlayer', (status) => {
       if(status === "fail") {
         this.player = {};
         this.error = true;
@@ -62,7 +62,7 @@ export class PlayerComponent implements OnInit {
 
 
 
-    this.socket.on('writeAnswerS2C', (status) => {
+    this.socket.on('writeAnswerS2CPlayer', (status) => {
       if(status === "fail") {
         this.answerFailed = true;
         setTimeout(() => this.answerFailed = false, 600);
@@ -82,7 +82,7 @@ export class PlayerComponent implements OnInit {
       playername: this.player.name,
       isMale: (<HTMLInputElement> document.querySelector('input[name = "radioGender"]:checked')).id === "radioGenderMale"
     }
-    this.socket.emit('createPlayerC2S', body);
+    this.socket.emit('createPlayerC2SPlayer', body);
   }
 
 
@@ -104,7 +104,7 @@ export class PlayerComponent implements OnInit {
     error => {
       console.log(error);
     });*/
-    this.socket.emit('writeAnswerC2S', answer.value);
+    this.socket.emit('writeAnswerC2SPlayer', answer.value);
     answer.value = null;
   }
 }

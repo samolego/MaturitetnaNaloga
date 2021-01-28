@@ -25,7 +25,7 @@ export class QuizComponent implements OnInit {
 
 
     this.socket.on('refreshPlayersS2C', data => {
-      console.log(data);
+      console.log("Refrshing players.");
       this.players = data;
     });
   }
