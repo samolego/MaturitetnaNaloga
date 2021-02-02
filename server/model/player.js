@@ -7,7 +7,7 @@ const playerSchema = new Schema({
   points: { type: Number, required: false, unique: false },
   answerValue: { type: String, required: false, unique: false },
   answerDate: { type: Date, required: false, unique: false },
-  isMale: { type: Boolean, required: true, unique:false },
+  avatarString: { type: String, required: true, unique:false },
   id: { type: String, required: true, unique: true }
 
 }, { collection : 'players' });

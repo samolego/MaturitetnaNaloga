@@ -95,26 +95,29 @@ mongoose.connect(url, mongooseOptions, (err) => {
 			Player.find({
 				id : address.toString()
 			}, (err, el) => {
-				if(err)
+				if(err) {
 					console.log(err);
-				if(el.length === 1)
 					socket.emit("createPlayerS2CPlayer", 'fail');
-				
-	
-				const player = new Player({
-					playername: data.playername,
-					points: 0,
-					answerValue: null,
-					answerDate: null,
-					isMale: data.isMale,
-					id: address.toString()
-				});
-				player.save((err, _res) => {
-					if(err)
-						console.log(err);
-					socket.emit("createPlayerS2CPlayer", 'success');
-					refreshPlayers();
-				});
+				}
+				else if(el.length === 1)
+					socket.emit("createPlayerS2CPlayer", 'fail');
+				else {
+					const player = new Player({
+						playername: data.playername,
+						points: 0,
+						answerValue: null,
+						answerDate: null,
+						avatarString: data.avatar,
+						id: address.toString()
+					});
+					player.save((err, _res) => {
+						if(err)
+							console.log(err);
+						socket.emit("createPlayerS2CPlayer", 'success');
+						refreshPlayers();
+					});
+				}
+
 			});
 		});
 
@@ -158,6 +161,19 @@ mongoose.connect(url, mongooseOptions, (err) => {
 		// Admin
 		socket.on('refreshPlayersC2SAdmin', () => {
 			if(admin) {
+				refreshPlayers();
+			}
+			else {
+				socket.emit('invalidTokenS2CAdmin');
+			}
+		});
+
+		socket.on('sortPlayersC2SAdmin', () => {
+			if(admin) {
+				Player.find({}).sort({
+					points: -1,
+					_id: -1
+				}).update();
 				refreshPlayers();
 			}
 			else {

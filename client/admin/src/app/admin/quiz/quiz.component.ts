@@ -41,7 +41,6 @@ export class QuizComponent implements OnInit {
     });
 
     this.socket.on('wisePlayersS2CPlayer', (data) => {
-      console.log("wisePlayersS2CPlayer");
       this.wisePlayers = data;
     });
   }
@@ -66,6 +65,8 @@ export class QuizComponent implements OnInit {
     this.players.sort((a, b) => {
       return b.points - a.points;
     });
+
+    this.socket.emit("sortPlayersC2SAdmin");
   }
 
   async clearAnswers() {

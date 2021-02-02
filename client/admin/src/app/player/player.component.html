@@ -1,42 +1,47 @@
 <section class="text-center">
     <div *ngIf="player == null" class="form-outline">
         <div class="row p-2">
-            <input type="text" id="nameInput" class="form-control" style="border: 2px" autocomplete="off">
-            <label class="form-label" for="nameInput">
-                Player name here
+            <input type="text" id="nameInput" class="form-control border" autocomplete="off">
+            <label class="form-label mt-2" for="nameInput">
+                <b>Player name</b>
             </label>
         </div>
-        <div class="row p-2 text-left">
-            <div class="form-check col-12">
-                <input
-                class="form-check-input"
-                type="radio"
-                name="radioGender"
-                id="radioGenderMale"
-                />
-                <label class="form-check-label" for="radioGenderMale">
-                Male
-                </label>
+        <div class="row p-4 text-left">
+            <div class="col-md-3 col-sm-6 col-xs-6">
+                <div class="row">
+                    <label for="baseColor">Avatar Color</label>
+                    <input type="color" id="baseColor" name="baseColor" class="m-2" value="#e66465" (change)="changeColor($event.target.value)">
+                </div>
+                <div class="row">
+                    <label for="eyesType">Eyes</label>
+                    <select name="eyesType" id="eyesType" class="m-2" (change)="changeEyes($event.target.value)">
+                        <option *ngFor="let type of EyeType | keyvalue" [ngValue]="type.key" [selected]="type.value == 'Small'">{{type.value}}</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label for="mouthType">Mouth</label>
+                    <select name="mouthType" id="mouthType" class="m-2" (change)="changeMouth($event.target.value)">
+                        <option *ngFor="let type of MouthType | keyvalue" [ngValue]="type.key" [selected]="type.value == 'Default'">{{type.value}}</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label for="decoration">Decoration</label>
+                    <select name="decoration" id="decoration" class="m-2" (change)="changeDecoration($event.target.value)">
+                        <option *ngFor="let type of Decoration | keyvalue" [ngValue]="type.key" [selected]="type.value == 'None'">{{type.value}}</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-lg btn-dark mt-4" style="min-width: 100%;" (click)="login()">Play quiz</button>
             </div>
-            <div class="form-check col-12">
-                <input
-                class="form-check-input"
-                type="radio"
-                name="radioGender"
-                id="radioGenderFemale"
-                checked
-                />
-                <label class="form-check-label" for="radioGenderFemale">
-                Female
-                </label>
+            <div class="col-md-9 col-sm-6 col-xs-6 text-center">
+                <!--Avatar canvas-->
+                <canvas id="avatarCreationCanvas" class="mt-4" style="page-break-inside: avoid; width: 100%; max-width: 400px"></canvas>
             </div>
         </div>
-        <button type="button" class="btn btn-dark" (click)="login()">Play quiz</button>
         <div class="bg-danger white-text" *ngIf="error">
             This player already exists.
         </div>
     </div>
-    <div *ngIf="player != null">
+    <div *ngIf="player != null && player != {}">
         <div class="row">
             <div class="col-6">
                 <h3>

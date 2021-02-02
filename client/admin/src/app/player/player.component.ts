@@ -1,5 +1,11 @@
+import { ViewChild } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { io } from 'socket.io-client';
+import { Avatar } from './Avatar';
+import { MouthType } from './Avatar';
+import { EyeType } from './Avatar';
+import { Decoration } from './Avatar';
 
 const SOCKET_ENDPOINT = 'localhost:4444';
 
@@ -17,6 +23,11 @@ export class PlayerComponent implements OnInit {
   error: boolean;
   showAnswerMessage: boolean;
   answerFailed: boolean;
+  avatar: Avatar;
+  EyeType = EyeType;
+  MouthType = MouthType;
+  Decoration = Decoration;
+  avatarCanvas: HTMLCanvasElement;
 
   constructor() {
     this.socket = io(SOCKET_ENDPOINT);
@@ -28,8 +39,14 @@ export class PlayerComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit() {
+    this.avatarCanvas = <HTMLCanvasElement> document.getElementById("avatarCreationCanvas");
+    console.log(this.avatarCanvas);
+    this.avatar = new Avatar("#e66465", EyeType.SMALL, MouthType.DEFAULT, Decoration.DEFAULT);
+    this.avatar.draw(this.avatarCanvas);
+  }
 
+  ngOnInit(): void {
     this.player = localStorage.getItem("player");
     if(this.player != null) {
       this.player = JSON.parse(this.player);
@@ -39,6 +56,9 @@ export class PlayerComponent implements OnInit {
       }
     }
 
+
+
+    // Socket events
     this.socket.on('wisePlayersS2CPlayer', (data) => {
       console.log("wisePlayersS2CPlayer");
       this.wisePlayers = data;
@@ -50,15 +70,22 @@ export class PlayerComponent implements OnInit {
       this.settings = data;
     });
 
+
     this.socket.on('createPlayerS2CPlayer', (status) => {
       if(status === "fail") {
-        this.player = {};
+        this.player = null;
         this.error = true;
         return;
       }
+      this.player = {}
+      this.player.name = (<HTMLInputElement> document.getElementById("nameInput")).value;
       this.player.expiry = this.now.getTime() + 1;
       this.error = false;
       localStorage.setItem("player", JSON.stringify(this.player));
+
+      
+      this.avatarCanvas = <HTMLCanvasElement> document.getElementById("avatarCanvas");
+      this.avatar.draw(this.avatarCanvas);
     });
 
 
@@ -77,13 +104,15 @@ export class PlayerComponent implements OnInit {
 
   async login() {
     // Sending to DB
-    this.player = {};
-    this.player.name = (<HTMLInputElement> document.getElementById("nameInput")).value;
-    const body = {
-      playername: this.player.name,
-      isMale: (<HTMLInputElement> document.querySelector('input[name = "radioGender"]:checked')).id === "radioGenderMale"
+    const name = (<HTMLInputElement> document.getElementById("nameInput")).value;
+    console.log(JSON.stringify(this.avatar));
+    if(name != null && name != "") {
+          const body = {
+          playername: name,
+          avatar: JSON.stringify(this.avatar)
+        }
+        this.socket.emit('createPlayerC2SPlayer', body);
     }
-    this.socket.emit('createPlayerC2SPlayer', body);
   }
 
 
@@ -105,5 +134,25 @@ export class PlayerComponent implements OnInit {
     }
 
     return timeDelta / 1000 + "s";
+  }
+
+  changeColor(newColor) {
+    this.avatar.baseColor = newColor;
+    this.avatar.draw(this.avatarCanvas);
+  }
+
+  changeEyes(newEyes) {
+    this.avatar.eyesType = newEyes;
+    this.avatar.draw(this.avatarCanvas);
+  }
+
+  changeMouth(newMouth) {
+    this.avatar.mouthType = newMouth;
+    this.avatar.draw(this.avatarCanvas);
+  }
+
+  changeDecoration(newDecoration) {
+    this.avatar.decoration = newDecoration;
+    this.avatar.draw(this.avatarCanvas);
   }
 }
