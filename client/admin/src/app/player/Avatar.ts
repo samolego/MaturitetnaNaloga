@@ -14,32 +14,37 @@ export class Avatar {
 
     public draw(canvas: HTMLCanvasElement): void {
         const ctx = canvas.getContext("2d");
+        
+        const lX = canvas.width / 2 - canvas.height / 2; // Left x
+        const rX = canvas.width / 2 + canvas.height / 2; // Right x
+
         // Clearing
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.beginPath();
         // Outline
-        ctx.rect(canvas.width / 2 - canvas.height / 2, 10, canvas.height - 20, canvas.height - 20);
+        ctx.rect(lX, 0, canvas.height, canvas.height);
 
         // Filling with baseColor
         ctx.fillStyle = this.baseColor;
-        ctx.fillRect(canvas.width / 2 - canvas.height / 2, 10, canvas.height - 20, canvas.height - 20);
+        ctx.fillRect(lX, 0, canvas.height, canvas.height);
 
         ctx.stroke();
         ctx.beginPath();
+
         // Mouth
         ctx.fillStyle = "#000000";
         switch(this.mouthType) {
             case MouthType.BIG:
-                ctx.rect(canvas.width / 2 - canvas.height / 2 + 10, canvas.height / 2 + 10, canvas.height - 40, canvas.height / 2 - 30);
+                ctx.rect(lX + lX / 10, canvas.height / 2, canvas.width / 2 - lX / 10, canvas.height / 2 - 30);
                 break;
 
             case MouthType.SURPRISED:
-                ctx.arc(canvas.width / 2 - 10, canvas.height / 2 + 25,  canvas.height / 8, 0, 2 * Math.PI);
+                ctx.arc(canvas.width / 2, canvas.height / 2 + canvas.height / 4,  canvas.height / 8, 0, 2 * Math.PI);
                 break;
 
             default:
-                ctx.arc(canvas.width / 2 - 10, canvas.height / 2, canvas.height / 4, 0, Math.PI);
+                ctx.arc(canvas.width / 2, canvas.height / 2 + canvas.height / 8,  canvas.height / 4, 0, Math.PI);
                 break;
         }
         ctx.stroke();
@@ -48,28 +53,32 @@ export class Avatar {
         let eyeSize;
         switch(this.eyesType) {
             case EyeType.BIG:
-                eyeSize = 45;
+                eyeSize = 4;
                 break;
 
             case EyeType.MEDIUM:
-                eyeSize = 35;
+                eyeSize = 5;
                 break;
 
             default:
-                eyeSize = 20;
+                eyeSize = 6;
                 break;
         }
-        // First
-        ctx.fillStyle = "#000000";
-        ctx.fillRect(canvas.width / 2 - canvas.height / 2 + 15, 30, eyeSize, eyeSize);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(canvas.width / 2 - canvas.height / 2 + 18, 34, eyeSize - eyeSize / 2, eyeSize - eyeSize / 2);
 
-        // Second
+        console.log(lX, canvas.height / 10, lX + canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);
+        console.log(rX, canvas.height / 10, rX - canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);
+
+        // Left eye
         ctx.fillStyle = "#000000";
-        ctx.fillRect(canvas.width / 2 + canvas.height / 2 - 35 - eyeSize, 30, eyeSize, eyeSize);
+        ctx.fillRect(lX + canvas.height / 8, canvas.height / 10, canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);
         ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(canvas.width / 2 + canvas.height / 2 - 32 - eyeSize, 34, eyeSize - eyeSize / 2, eyeSize - eyeSize / 2);
+        ctx.fillRect(lX + canvas.height / 8, canvas.height / 10, canvas.height / (eyeSize * 2), canvas.height / 10 + canvas.height / (eyeSize * 2));
+
+        // Right eye
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(rX - canvas.height / 8, canvas.height / 10, - canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(rX - canvas.height / 8, canvas.height / 10, - canvas.height / (eyeSize * 2), canvas.height / 10 + canvas.height / (eyeSize * 2));
         ctx.stroke();
     }
 
