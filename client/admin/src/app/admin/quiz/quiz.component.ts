@@ -1,6 +1,9 @@
+import { ViewChildren } from '@angular/core';
+import { QueryList } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { io } from 'socket.io-client';
+import { Avatar } from 'src/app/player/Avatar';
 
 const SOCKET_ENDPOINT = 'localhost:4444';
 
@@ -14,6 +17,9 @@ export class QuizComponent implements OnInit {
   players;
   wisePlayers; // Players who have answered :)
   socket: any;
+
+  @ViewChildren("avatarCanvas") 
+  avatarCanvases: QueryList<HTMLCanvasElement>;	
 
   constructor(private router: Router) {
     const token = localStorage.getItem("ACCESS_TOKEN");
@@ -42,6 +48,17 @@ export class QuizComponent implements OnInit {
 
     this.socket.on('wisePlayersS2CPlayer', (data) => {
       this.wisePlayers = data;
+    });
+  }
+
+  ngAfterViewInit() {
+    this.avatarCanvases.changes.subscribe(c => {
+      c.toArray().forEach((item, i) => {
+        let parsed = JSON.parse(this.players[i].avatarString);
+        let avatar: Avatar = new Avatar(parsed.baseColor, parsed.eyesType, parsed.mouthType, parsed.decoration);
+        console.log(item);
+        avatar.draw(item.nativeElement);
+      });      
     });
   }
 
@@ -94,9 +111,9 @@ export class QuizComponent implements OnInit {
     }
     let timeDelta = otherDate.getTime() - new Date(this.wisePlayers[0].answerDate).getTime();
     if(timeDelta == 0) {
-      return "first";
+      return "";
     }
 
-    return timeDelta / 1000 + "s";
+    return "(" + timeDelta / 1000 + "s)";
   }
 }

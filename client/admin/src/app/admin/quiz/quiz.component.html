@@ -3,14 +3,21 @@
         <div class="col-lg-10 col-md-9 col-sm-8">
             <div class="row">
                 <div class="card m-1" *ngFor="let player of players; let i = index" style="max-width: 200px;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ player.playername }}</h5>
-                        <p class="card-text">
-                            Score: {{ player.points }}
-                        </p>
-                        <p *ngIf="this.showAnswers">
-                            {{ player.answerValue }}
-                        </p>
+                    <div class="card-body container-fluid">
+                        <div class="row">
+                            <div class="col-8">
+                                <h5 class="card-title">{{ player.playername }}</h5>
+                                <p class="card-text">
+                                    Score: {{ player.points }}
+                                </p>
+                                <p *ngIf="this.showAnswers">
+                                    {{ player.answerValue }}
+                                </p>
+                            </div>
+                            <div class="col-4">
+                                <canvas #avatarCanvas width="60px" height="60px"></canvas>
+                            </div>
+                        </div>
                         <button class="btn-danger btn-sm" (click)="addPoints(i, -5)">-5</button>
                         <button class="btn-warning btn-sm" (click)="addPoints(i, -1)">-1</button>
                         <button class="btn-success btn-sm" (click)="addPoints(i, 1)">+1</button>
@@ -34,7 +41,7 @@
             <div class="row p-2 text-left" *ngIf="wisePlayers != null && wisePlayers[0] != null">
                 <b>Players who answered:</b>
                 <span *ngFor="let player of wisePlayers; let i = index">
-                    {{ i + 1 }}. {{ player.playername }} ({{ getDate(player.answerDate) }})
+                    {{ i + 1 }}. {{ player.playername }} {{ getDate(player.answerDate) }}
                 </span>
             </div>
         </div>
