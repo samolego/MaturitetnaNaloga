@@ -36,7 +36,7 @@ export class Avatar {
         ctx.fillStyle = "#000000";
         switch(this.mouthType) {
             case MouthType.BIG:
-                ctx.rect(lX + lX / 10, canvas.height / 2, canvas.width / 2 - lX / 10, canvas.height / 2 - 30);
+                ctx.rect(lX + canvas.height / 10, canvas.height / 2, canvas.height - canvas.height / 5, canvas.height / 2 - canvas.height / 6);
                 break;
 
             case MouthType.SURPRISED:
