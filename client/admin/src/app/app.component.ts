@@ -12,9 +12,7 @@ const SOCKET_ENDPOINT = new URL(window.location.href).hostname + ":4444";//'loca
 })
 export class AppComponent {
 
-  constructor(private authService: AuthService, router: Router) {
-    console.log(SOCKET_ENDPOINT);
-  }
+  constructor(private authService: AuthService, router: Router) { }
 
   
   isAuthenticated() {

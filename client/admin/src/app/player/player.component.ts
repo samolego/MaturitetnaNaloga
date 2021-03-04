@@ -115,14 +115,18 @@ export class PlayerComponent implements OnInit {
 
 
     this.socket.on('writeAnswerS2CPlayer', (status) => {
+      console.log(status);
       if(status === "fail") {
         this.answerFailed = true;
         setTimeout(() => this.answerFailed = false, 600);
-        return;
+      } else if(status === "unauthorized") {
+        this.answerFailed = true;
+        setTimeout(() => this.answerFailed = false, 600);
+      } else {
+        this.error = false;
+        this.showAnswerMessage = true;
+        setTimeout(() => this.showAnswerMessage = false, 600);
       }
-      this.error = false;
-      this.showAnswerMessage = true;
-      setTimeout(() => this.showAnswerMessage = false, 600);
     });
   }
 

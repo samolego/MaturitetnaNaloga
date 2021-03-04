@@ -1,4 +1,4 @@
-import { ViewChildren } from '@angular/core';
+import { ViewChild, ViewChildren } from '@angular/core';
 import { QueryList } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -50,6 +50,10 @@ export class QuizComponent implements OnInit {
     this.socket.on('wisePlayersS2CPlayer', (data) => {
       this.wisePlayers = data;
     });
+
+    this.socket.on('toggleAnswersS2CPlayer', showAnswers => {
+      this.showAnswers = showAnswers;
+    })
   }
 
   ngAfterViewInit() {
@@ -72,6 +76,7 @@ export class QuizComponent implements OnInit {
 
   async toggleAnswers() {
     this.showAnswers = !this.showAnswers;
+    this.socket.emit('toggleAnswersC2SAdmin', this.showAnswers);
   }
 
   async addPoints(index, points) {
@@ -98,7 +103,6 @@ export class QuizComponent implements OnInit {
     if(this.socket.connected) {
       this.showAnswers = false;
       (<HTMLInputElement> document.getElementById("answersSwitch")).checked = false;
-      console.log(this.players);
 
       for(let i = 0; i < this.players.length; ++i) {
         this.players[i].answerValue = null;

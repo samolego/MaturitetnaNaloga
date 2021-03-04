@@ -64,7 +64,7 @@ app.post('/api/admin/playerModify', (req, res) => {
 
 */
 // NEW
-
+let showAnswers = false;
 mongoose.connect(url, mongooseOptions, (err) => {
 	if(err)
 		console.log(err);
@@ -127,33 +127,36 @@ mongoose.connect(url, mongooseOptions, (err) => {
 		});
 
 		socket.on('writeAnswerC2SPlayer', (answer) => {
-			Player.updateOne({
-				id : address.toString(),
-				answerValue: null
-			}, {$set: {
-				answerValue: answer,
-				answerDate: new Date()
-			}},(err, player) => {
-				if(err)
-					console.log(err);
-
-				socket.emit("writeAnswerS2CPlayer", player.nModified > 0 ? 'success' : 'fail');
-				refreshPlayers();
-				Player.find({
-					answerValue: {
-						$ne: null
-					}
-				}, (err, players) => {
+			if(!showAnswers) {
+				Player.updateOne({
+					id : address.toString(),
+					answerValue: null
+				}, {$set: {
+					answerValue: answer,
+					answerDate: new Date()
+				}},(err, player) => {
 					if(err)
 						console.log(err);
-					players.sort((a, b) => {
-						a.answerValue = null;
-						b.answerValue = null;
-						return a.answerDate - b.answerDate;
+	
+					socket.emit("writeAnswerS2CPlayer", player.nModified > 0 ? 'success' : 'fail');
+					refreshPlayers();
+					Player.find({
+						answerValue: {
+							$ne: null
+						}
+					}, (err, players) => {
+						if(err)
+							console.log(err);
+						players.sort((a, b) => {
+							a.answerValue = null;
+							b.answerValue = null;
+							return a.answerDate - b.answerDate;
+						});
+						io.emit("wisePlayersS2CPlayer", players);
 					});
-					io.emit("wisePlayersS2CPlayer", players);
 				});
-			});
+			} else
+				socket.emit("writeAnswerS2CPlayer", 'unauthorized');
 		});
 
 		socket.on("wisePlayersC2SPlayer", () => {
@@ -258,6 +261,15 @@ mongoose.connect(url, mongooseOptions, (err) => {
 				});
 			}
 			else {
+				socket.emit('invalidTokenS2CAdmin');
+			}
+		});
+
+		socket.on('toggleAnswersC2SAdmin', answers => {
+			if(admin) {
+				io.emit('toggleAnswersS2CPlayer', answers);
+				showAnswers = answers;
+			} else {
 				socket.emit('invalidTokenS2CAdmin');
 			}
 		});
