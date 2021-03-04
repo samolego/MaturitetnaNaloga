@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const playerSchema = new Schema({
   playername: { type: String, required: true, unique: true },
   points: { type: Number, required: false, unique: false },
+  place: { type: Number, required: false, unique: false },
   answerValue: { type: String, required: false, unique: false },
   answerDate: { type: Date, required: false, unique: false },
   avatarString: { type: String, required: true, unique:false },

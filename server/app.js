@@ -8,7 +8,7 @@ const http = require('http').Server(app);
 
 const io = require("socket.io")(http, {
 	cors: {
-	  origin: "http://localhost:4200",
+	  origin: "*", //todo CHANGE AFTER RELEASE
 	  methods: ["GET", "POST"],
 	  allowedHeaders: ["main-header"],
 	  credentials: true
@@ -90,6 +90,7 @@ mongoose.connect(url, mongooseOptions, (err) => {
 
 		// Player
 		socket.emit('clientSettingsS2CPlayer', settings);
+		refreshWisePlayers();
 
 		socket.on('createPlayerC2SPlayer', (data) => {
 			Player.find({
@@ -102,9 +103,11 @@ mongoose.connect(url, mongooseOptions, (err) => {
 				else if(el.length === 1)
 					socket.emit("createPlayerS2CPlayer", 'fail');
 				else {
+					console.log(address);
 					const player = new Player({
 						playername: data.playername,
 						points: 0,
+						place: 0,
 						answerValue: null,
 						answerDate: null,
 						avatarString: data.avatar,
@@ -113,8 +116,10 @@ mongoose.connect(url, mongooseOptions, (err) => {
 					player.save((err, _res) => {
 						if(err)
 							console.log(err);
-						socket.emit("createPlayerS2CPlayer", 'success');
-						refreshPlayers();
+						else {
+							socket.emit("createPlayerS2CPlayer", 'success');
+							refreshPlayers();
+						}
 					});
 				}
 
@@ -170,10 +175,29 @@ mongoose.connect(url, mongooseOptions, (err) => {
 
 		socket.on('sortPlayersC2SAdmin', () => {
 			if(admin) {
-				Player.find({}).sort({
+				Player.updateMany({}, {
+					$set: {
+						place: 0
+					}
+				}, (err) => {
+					if(err)
+						console.log(err);
+				});
+				
+				/*
+				Player.sort({
 					points: -1,
 					_id: -1
-				}).update();
+				}).update((err, players) => {
+					if(err)
+						console.log(err);
+					console.log(players);
+				});/*.update();
+				// or this?
+				Player.update({
+					points: -1,
+					_id: -1
+				});*/
 				refreshPlayers();
 			}
 			else {

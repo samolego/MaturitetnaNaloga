@@ -1,4 +1,6 @@
 import { ViewChild } from '@angular/core';
+import { QueryList } from '@angular/core';
+import { ViewChildren } from '@angular/core';
 import { ElementRef } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { io } from 'socket.io-client';
@@ -6,8 +8,7 @@ import { Avatar } from './Avatar';
 import { MouthType } from './Avatar';
 import { EyeType } from './Avatar';
 import { Decoration } from './Avatar';
-
-const SOCKET_ENDPOINT = 'localhost:4444';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-player',
@@ -27,10 +28,14 @@ export class PlayerComponent implements OnInit {
   EyeType = EyeType;
   MouthType = MouthType;
   Decoration = Decoration;
-  avatarCanvas: HTMLCanvasElement;
+  @ViewChildren("avatarPlayerCanvas")
+  avatarPlayerCanvases: QueryList<ElementRef<HTMLCanvasElement>>;
+
+  @ViewChildren("avatarCanvasWise") 
+  avatarCanvasesWise: QueryList<ElementRef<HTMLCanvasElement>>;
 
   constructor() {
-    this.socket = io(SOCKET_ENDPOINT);
+    this.socket = io(AppComponent.getSocketAddress());
     this.now = new Date();
 
     // Default settings
@@ -40,27 +45,45 @@ export class PlayerComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.avatarCanvas = <HTMLCanvasElement> document.getElementById("avatarCreationCanvas");
-    console.log(this.avatarCanvas);
-    this.avatar = new Avatar("#e66465", EyeType.SMALL, MouthType.DEFAULT, Decoration.DEFAULT);
-    this.avatar.draw(this.avatarCanvas);
+    this.avatarPlayerCanvases.forEach(item => {
+      console.log(item.nativeElement);
+      this.avatar.draw(item.nativeElement);
+    });
+
+    this.avatarPlayerCanvases.changes.subscribe(c => {
+      c.toArray().forEach(item => {
+        console.log(item.nativeElement);
+        this.avatar.draw(item.nativeElement);
+      });
+    });
+
+
+    this.avatarCanvasesWise.changes.subscribe(c => {
+      c.toArray().forEach((item, i) => {
+        let parsed = JSON.parse(this.wisePlayers[i].avatarString);
+        let avatar: Avatar = new Avatar(parsed.baseColor, parsed.eyesType, parsed.mouthType, parsed.decoration);
+        avatar.draw(item.nativeElement);
+      });      
+    });
   }
 
   ngOnInit(): void {
     this.player = localStorage.getItem("player");
     if(this.player != null) {
       this.player = JSON.parse(this.player);
+      this.avatar = new Avatar(this.player.avatar.baseColor, this.player.avatar.eyesType, this.player.avatar.mouthType, this.player.avatar.decoration);
 
       if(this.player.expiry > this.now.getTime() + 1) {
         this.player = null;
       }
+    } else {
+      this.avatar = new Avatar("#e66465", EyeType.SMALL, MouthType.DEFAULT, Decoration.DEFAULT);
     }
 
 
 
     // Socket events
     this.socket.on('wisePlayersS2CPlayer', (data) => {
-      console.log("wisePlayersS2CPlayer");
       this.wisePlayers = data;
     });
 
@@ -80,12 +103,13 @@ export class PlayerComponent implements OnInit {
       this.player = {}
       this.player.name = (<HTMLInputElement> document.getElementById("nameInput")).value;
       this.player.expiry = this.now.getTime() + 1;
+      this.player.avatar = this.avatar;
       this.error = false;
       localStorage.setItem("player", JSON.stringify(this.player));
-
       
-      this.avatarCanvas = <HTMLCanvasElement> document.getElementById("avatarCanvas");
-      this.avatar.draw(this.avatarCanvas);
+      this.avatarPlayerCanvases.forEach(item => {
+        this.avatar.draw(item.nativeElement);
+      });
     });
 
 
@@ -138,21 +162,29 @@ export class PlayerComponent implements OnInit {
 
   changeColor(newColor) {
     this.avatar.baseColor = newColor;
-    this.avatar.draw(this.avatarCanvas);
+    this.avatarPlayerCanvases.forEach(item => {
+      this.avatar.draw(item.nativeElement);
+    });
   }
 
   changeEyes(newEyes) {
     this.avatar.eyesType = newEyes;
-    this.avatar.draw(this.avatarCanvas);
+    this.avatarPlayerCanvases.forEach(item => {
+      this.avatar.draw(item.nativeElement);
+    });
   }
 
   changeMouth(newMouth) {
     this.avatar.mouthType = newMouth;
-    this.avatar.draw(this.avatarCanvas);
+    this.avatarPlayerCanvases.forEach(item => {
+      this.avatar.draw(item.nativeElement);
+    });
   }
 
   changeDecoration(newDecoration) {
     this.avatar.decoration = newDecoration;
-    this.avatar.draw(this.avatarCanvas);
+    this.avatarPlayerCanvases.forEach(item => {
+      this.avatar.draw(item.nativeElement);
+    });
   }
 }

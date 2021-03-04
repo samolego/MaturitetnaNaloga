@@ -34,7 +34,7 @@
             </div>
             <div class="col-md-9 col-sm-6 col-xs-6 text-center">
                 <!--Avatar canvas-->
-                <canvas id="avatarCreationCanvas" class="mt-4" style="page-break-inside: avoid; width: 100%; max-width: 400px"></canvas>
+                <canvas #avatarPlayerCanvas class="mt-4" style="page-break-inside: avoid; width: 100%; max-width: 400px"></canvas>
             </div>
         </div>
         <div class="bg-danger white-text" *ngIf="error">
@@ -45,7 +45,7 @@
         <div class="row">
             <div class="col-6">
                 <h3>
-                    Hello, {{ this.player.name }}!
+                    Hello, {{ this.player.name }}! <canvas #avatarPlayerCanvas class="mt-4" width="50px" height="50px"></canvas>
                 </h3>
             </div>
             <div class="col-6" *ngIf="this.showAnswerMessage">
@@ -72,8 +72,9 @@
         </div>
         <div class="row p-4" *ngIf="wisePlayers != null">
             <b>Players who answered:</b>
-            <span *ngFor="let player of wisePlayers">
-                {{ player.playername }}; {{ getDate(player.answerDate) }}
+            <span *ngFor="let player of wisePlayers; let i = index">
+                {{ i + 1 }}. {{ player.playername }} {{ getDate(player.answerDate) }}
+                <canvas #avatarCanvasWise width="30px" height="30px"></canvas>
             </span>
         </div>
     </div>

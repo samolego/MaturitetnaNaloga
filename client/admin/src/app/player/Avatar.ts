@@ -65,9 +65,6 @@ export class Avatar {
                 break;
         }
 
-        console.log(lX, canvas.height / 10, lX + canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);
-        console.log(rX, canvas.height / 10, rX - canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);
-
         // Left eye
         ctx.fillStyle = "#000000";
         ctx.fillRect(lX + canvas.height / 8, canvas.height / 10, canvas.height / eyeSize, canvas.height / 10 + canvas.height / eyeSize);

@@ -4,8 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { io } from 'socket.io-client';
 import { Avatar } from 'src/app/player/Avatar';
-
-const SOCKET_ENDPOINT = 'localhost:4444';
+import { AppComponent } from '../../app.component';
 
 @Component({
   selector: 'app-quiz',
@@ -19,11 +18,13 @@ export class QuizComponent implements OnInit {
   socket: any;
 
   @ViewChildren("avatarCanvas") 
-  avatarCanvases: QueryList<HTMLCanvasElement>;	
+  avatarCanvases: QueryList<HTMLCanvasElement>;
+  @ViewChildren("avatarCanvasWise") 
+  avatarCanvasesWise: QueryList<HTMLCanvasElement>;	
 
   constructor(private router: Router) {
     const token = localStorage.getItem("ACCESS_TOKEN");
-    this.socket = io(SOCKET_ENDPOINT, {query: {token}});
+    this.socket = io(AppComponent.getSocketAddress(), {query: {token}});
   }
 
   ngOnInit(): void {
@@ -56,7 +57,14 @@ export class QuizComponent implements OnInit {
       c.toArray().forEach((item, i) => {
         let parsed = JSON.parse(this.players[i].avatarString);
         let avatar: Avatar = new Avatar(parsed.baseColor, parsed.eyesType, parsed.mouthType, parsed.decoration);
-        console.log(item);
+        avatar.draw(item.nativeElement);
+      });      
+    });
+
+    this.avatarCanvasesWise.changes.subscribe(c => {
+      c.toArray().forEach((item, i) => {
+        let parsed = JSON.parse(this.wisePlayers[i].avatarString);
+        let avatar: Avatar = new Avatar(parsed.baseColor, parsed.eyesType, parsed.mouthType, parsed.decoration);
         avatar.draw(item.nativeElement);
       });      
     });
