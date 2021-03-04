@@ -92,9 +92,9 @@ export class QuizComponent implements OnInit {
 
 
   async sortByScore() {
-    this.players.sort((a, b) => {
+    /*this.players.sort((a, b) => {
       return b.points - a.points;
-    });
+    });*/ // client only
 
     this.socket.emit("sortPlayersC2SAdmin");
   }

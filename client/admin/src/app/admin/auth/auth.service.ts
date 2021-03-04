@@ -3,7 +3,8 @@ import { Admin } from '../admin';
 import { io } from 'socket.io-client';
 import { Router } from '@angular/router';
 
-const SOCKET_ENDPOINT = 'localhost:4444';
+
+const SOCKET_ENDPOINT = new URL(window.location.href).hostname + ":4444";
 
 @Injectable({
   providedIn: 'root'

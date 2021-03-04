@@ -178,13 +178,31 @@ mongoose.connect(url, mongooseOptions, (err) => {
 
 		socket.on('sortPlayersC2SAdmin', () => {
 			if(admin) {
-				Player.updateMany({}, {
+				/*Player.updateMany({}, {
 					$set: {
 						place: 0
 					}
 				}, (err) => {
 					if(err)
 						console.log(err);
+				});*/
+				Player.find().sort({ points: 1, _id: -1 }).then(players => {
+					// Reverse order!
+					let bulk = [];
+					players.forEach((player, i) => {
+					
+						bulk.push({
+							updateOne: { filter: {
+									_id: player._id
+								},
+								update: { $set: {
+									place: i + 1
+								}}
+							}
+						});
+						
+					});
+					Player.bulkWrite(bulk).then(_ => refreshPlayers());
 				});
 				
 				/*
@@ -201,7 +219,6 @@ mongoose.connect(url, mongooseOptions, (err) => {
 					points: -1,
 					_id: -1
 				});*/
-				refreshPlayers();
 			}
 			else {
 				socket.emit('invalidTokenS2CAdmin');
@@ -209,11 +226,14 @@ mongoose.connect(url, mongooseOptions, (err) => {
 		});
 
 		async function refreshPlayers() {
-			Player.find({}, (err, players) => {
+			Player.find().sort({ place: -1, _id: -1 }).then(players => {
+				io.emit("refreshPlayersS2CAdmin", players);
+			});
+			/*Player.find({}, (err, players) => {
 				if(err)
 					console.log(err);
 				io.emit("refreshPlayersS2CAdmin", players);
-			});
+			});*/
 		}
 
 		async function refreshWisePlayers() {
