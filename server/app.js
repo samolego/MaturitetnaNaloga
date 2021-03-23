@@ -35,6 +35,10 @@ const username = "admin"
 const passwd = crypto.createHash("sha256").update("admin").digest("hex");
 const token = generateUuid();
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+
 function generateUuid() {
 	// https://gist.github.com/LeverOne/1308368
 	let a, b;
