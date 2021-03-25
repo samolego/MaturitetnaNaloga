@@ -16,10 +16,7 @@ const io = require("socket.io")(http, {
 });
 const crypto = require('crypto');
 
-const Admin = require('./model/admin');
 const Player = require('./model/player');
-const { response } = require('express');
-const player = require('./model/player');
 
 
 app.use(cors());
@@ -46,27 +43,6 @@ function generateUuid() {
 	return b;
 }
 
-/*
-// Modifying player
-app.post('/api/admin/playerModify', (req, res) => {
-	mongoose.connect(url, mongooseOptions, (err) => {
-		if(err)
-			console.log(err);
-		Player.updateOne({
-			id : req.ip.toString()
-		}, {$set: {
-			points: this.points + req.body.pointsPlus
-		}},(err, player) => {
-			if(err)
-				console.log(err);
-			return res.status(200).json({
-				status: 'success'
-			});
-		});
-	});
-});
-
-*/
 // NEW
 let showAnswers = false;
 mongoose.connect(url, mongooseOptions, (err) => {
@@ -79,14 +55,14 @@ mongoose.connect(url, mongooseOptions, (err) => {
 			console.log(socket.handshake.query.token);
 		}
 
-		var admin = true;/*
+		// Checking if connected user is admin
 		if (socket.handshake.query && socket.handshake.query.username == username && crypto.createHash("sha256").update(socket.handshake.query.password).digest("hex") == passwd) {
 			// Succes, let's send token.
 			socket.emit("tokenSecretS2CAdmin", token);
 			admin = true;
 		}
 		else
-			admin = socket.handshake.query && socket.handshake.query.token == token;*/
+			admin = socket.handshake.query && socket.handshake.query.token == token;
 
 		console.log("A user connected: " + address);
 		console.log("Admin: " + admin);
@@ -182,14 +158,6 @@ mongoose.connect(url, mongooseOptions, (err) => {
 
 		socket.on('sortPlayersC2SAdmin', () => {
 			if(admin) {
-				/*Player.updateMany({}, {
-					$set: {
-						place: 0
-					}
-				}, (err) => {
-					if(err)
-						console.log(err);
-				});*/
 				Player.find().sort({ points: 1, _id: -1 }).then(players => {
 					// Reverse order!
 					let bulk = [];
@@ -208,21 +176,6 @@ mongoose.connect(url, mongooseOptions, (err) => {
 					});
 					Player.bulkWrite(bulk).then(_ => refreshPlayers());
 				});
-				
-				/*
-				Player.sort({
-					points: -1,
-					_id: -1
-				}).update((err, players) => {
-					if(err)
-						console.log(err);
-					console.log(players);
-				});/*.update();
-				// or this?
-				Player.update({
-					points: -1,
-					_id: -1
-				});*/
 			}
 			else {
 				socket.emit('invalidTokenS2CAdmin');
@@ -233,11 +186,6 @@ mongoose.connect(url, mongooseOptions, (err) => {
 			Player.find().sort({ place: -1, _id: -1 }).then(players => {
 				io.emit("refreshPlayersS2CAdmin", players);
 			});
-			/*Player.find({}, (err, players) => {
-				if(err)
-					console.log(err);
-				io.emit("refreshPlayersS2CAdmin", players);
-			});*/
 		}
 
 		async function refreshWisePlayers() {
