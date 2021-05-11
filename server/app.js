@@ -87,7 +87,7 @@ mongoose.connect(url, mongooseOptions, (err) => {
 					const player = new Player({
 						playername: data.playername,
 						points: 0,
-						place: 0,
+						place: -1,
 						answerValue: null,
 						answerDate: null,
 						avatarString: data.avatar,
